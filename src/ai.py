@@ -39,12 +39,12 @@ class PositionEvaluation:
         # for i in range(7):
             # for j in range(i + 1):
                 #self.BlackValueBoard[7 - j, 7 - (i - j)] = 16 - i
-        for i in self.WhiteValueBoard:
-            print(*i)
-        print('-----------------')
-        for i in self.BlackValueBoard:
-            print(*i)
-        print('=================')
+        # for i in self.WhiteValueBoard:
+            # print(*i)
+        # print('-----------------')
+        # for i in self.BlackValueBoard:
+            # print(*i)
+        # print('=================')
 
     def get_value(self, board) -> int:
         result = 0
