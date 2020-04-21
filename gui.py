@@ -9,6 +9,28 @@ from src.DefaultBoards import StartBoard1
 from src.DefaultBoards import StartBoard2
 from tests import tests
 
+class cons:
+    def __init__(self):
+        self.saved_board = None
+        self.saved_log = None
+        self.board_log = []
+    
+    def prev(self):
+        return None if len(self.board_log) == 0 else self.board_log.pop()
+    
+    def save(self, board):
+        self.saved_board = board.copy()
+        self.saved_log = self.board_log.copy()
+    
+    def download(self):
+        if self.saved_board is None:
+            return None
+        self.board_log = self.saved_log.copy()
+        return self.saved_board.copy()
+
+    def new_move(self, board):
+        self.board_log.append(board.copy())
+
 
 def draw_board(screen: Surface, pos_x: int, pos_y: int, elem_size: int, board: BoardState):
     dark = (0, 0, 0)
@@ -55,7 +77,7 @@ def game_loop(screen: Surface, board: BoardState, ai: AI, game_mod):
 
                 new_board = board.do_move(old_x, old_y, new_x, new_y, help_.WhiteValueBoard, help_.BlackValueBoard)
                 if new_board is not None:
-                    board_log.append(board)
+                    pers.new_move(board)
                     board = new_board
                     moves += 1
 
@@ -68,7 +90,7 @@ def game_loop(screen: Surface, board: BoardState, ai: AI, game_mod):
                 if event.key == pygame.K_SPACE:
                     new_board = ai.next_move(board)
                     if new_board is not None:
-                        board_log.append(board)
+                        pers.new_move(board)
                         board = new_board
                         moves += 1
                 if event.key == pygame.K_t:
@@ -80,15 +102,18 @@ def game_loop(screen: Surface, board: BoardState, ai: AI, game_mod):
                     else:
                         print('There are only', len(tests), 'tests')
                 if event.key == pygame.K_s:
-                    saved_board = board.copy()
+                    pers.save(board.copy())
                 if event.key == pygame.K_l:
-                    board = saved_board.copy()
+                    board_ = pers.download()
+                    if board_ is not None:
+                        board = board_
                 if event.key == pygame.K_LEFT:
-                    if len(board_log) == 0:
+                    prev = pers.prev()
+                    if prev is None:
                         print("It's first turn")
                     else:
-                        board = board_log[-1]
-                        board_log.pop()
+                        board = prev
+                        
             if moves == 16:
                 ai.boards.update()
             if board.is_game_finished:
@@ -103,10 +128,9 @@ pygame.init()
 help
 print("Do you want to enter change mode?\nWrite 1 or 0")
 game_mod = int(input())
+pers = cons()
 if game_mod == 1:
     tests = tests()
-safed_board = None
-board_log = []
 ai = AI(PositionEvaluation(), search_depth=4)
 help_ = PositionEvaluation()
 StartBoard = StartBoard1() if game_mod == 0 else StartBoard2()
