@@ -11,40 +11,16 @@ import time
 class PositionEvaluation:
     def __init__(self):
         self.WhiteValueBoard = np.ndarray((8, 8), int)
-
-        #self.WhiteValueBoard = np.ndarray([[20, 16, 12, 7, 5, 4, 2, 1] ,[16, 14, 12, 8, 6, 5, 4, 2], [12, 12, 11, 8, 7, 5, 2, 2], [7, 8, 8, 7, 6, 5, 3, 2], [5, 6, 7, 6, 6, 5, 3, 2], [4, 5, 5, 5, 5, 4, 4, 2], [2, 4, 3, 5, 3, 4, 3, 1], [1, 2, 2, 2, 2, 2, 1, 0]])
-
-        self.WhiteValueBoard[0] = [20, 16, 12, 7, 5, 4, 2, 1]
-        self.WhiteValueBoard[1] = [16, 14, 12, 8, 6, 4.6, 4, 2]
-        self.WhiteValueBoard[2] = [12, 12, 11, 8, 7, 5.7, 2, 2.5]
-        self.WhiteValueBoard[3] = [7, 8, 8, 7, 6.5, 5.5, 3, 2.6]
-        self.WhiteValueBoard[4] = [5, 6, 7, 6.5, 6, 5, 3, 2.4]
-        self.WhiteValueBoard[5] = [4, 4.6, 5.7, 5.5, 5, 4, 4, 2]
-        self.WhiteValueBoard[6] = [2, 4, 3, 5, 3, 4, 3, 1]
-        self.WhiteValueBoard[7] = [1, 2, 2.5, 2.6, 2.4, 2, 1, 0]
-        self.BlackValueBoard = np.ndarray((8, 8), float)
+        self.WhiteValueBoard = np.ndappay([[20, 16, 12, 7, 5, 4, 2, 1],
+                                          [16, 14, 12, 8, 6, 4.6, 4, 2],
+                                          [12, 12, 11, 8, 7, 5.7, 2, 2.5],
+                                          [7, 8, 8, 7, 6.5, 5.5, 3, 2.6],
+                                          [5, 6, 7, 6.5, 6, 5, 3, 2.4],
+                                          [4, 4.6, 5.7, 5.5, 5, 4, 4, 2],
+                                          [2, 4, 3, 5, 3, 4, 3, 1],
+                                          [1, 2, 2.5, 2.6, 2.4, 2, 1, 0]
+                                          ])
         self.BlackValueBoard = self.WhiteValueBoard[::-1, ::-1].copy()
-        # for i in range(8):
-            # for j in range(i + 1):
-                #self.WhiteValueBoard[j, i - j] = 16 - i
-        # for i in range(7):
-            # for j in range(i + 1):
-                #self.WhiteValueBoard[7 - j, 7 - (i - j)] = i
-        #self.BlackValueBoard = np.ndarray((8, 8), int)
-        # for i in range(8):
-            # for j in range(i + 1):
-                ##print(j, i - j, self.BlackValueBoard[j, i - j])
-                #self.BlackValueBoard[j, i - j] = i
-                ##print(self.BlackValueBoard[j, i - j])
-        # for i in range(7):
-            # for j in range(i + 1):
-                #self.BlackValueBoard[7 - j, 7 - (i - j)] = 16 - i
-        # for i in self.WhiteValueBoard:
-            # print(*i)
-        # print('-----------------')
-        # for i in self.BlackValueBoard:
-            # print(*i)
-        # print('=================')
 
     def get_value(self, board) -> int:
         result = 0
@@ -55,21 +31,16 @@ class PositionEvaluation:
                 result += self.WhiteValueBoard[i, j]
             else:
                 result -= self.BlackValueBoard[i, j]
-
-        #print('rating:', result)
-        # for i in self.WhiteValueBoard:
-            # print(*i)
-        # print('---------------')
-        # for i in self.BlackValueBoard:
-            # print(*i)
-        # print('===============')
-        # for i in board.board:
-            # print(*i)
         return result
 
     def update(self):
         for i, j in product(range(5, 8), range(5, 8)):
             self.WhiteValueBoard[i, j] -= 10 + 16 - i - j
+        # не совсем понял вашу правку в данном месте, так как в развернутом массиве все равно придется менять значения
+        # хочу отметить, что данные значения не обязаны быть равны, так как первый кейс уменьшений отвечает за то, чтобы
+        #    бот не оставлял до последнего свои фишки на базе, а второй кейс уменьшений отвечает за то, чтобы бот стремился быстрее занять 
+        #                                                                                        освободившиеся клетки на базе противника.
+        
         self.WhiteValueBoard[7, 7] -= 10
         self.WhiteValueBoard[7, 6] -= 5
         self.WhiteValueBoard[6, 7] -= 5
@@ -84,16 +55,11 @@ class PositionEvaluation:
     def update_information(self, board):
         board.rating = self.get_value(board.board)
         WhiteInHouse, WhiteInOtherHouse, BlackInHouse, BlackInOtherHouse = 0, 0, 0, 0
-        for i, j in product(range(3), range(3)):
-            if board.board[i, j] == -1:
-                BlackInHouse += 1
-            elif board.board[i, j] == 1:
-                WhiteInOtherHouse += 1
-        for i, j in product(range(5, 8), range(5, 8)):
-            if board.board[i, j] == -1:
-                BlackInOtherHouse += 1
-            elif board.board[i, j] == 1:
-                WhiteInHouse += 1
+        BlackInHouse = (board.board[0:3, 0:3] == -1).sum()
+        WhiteInOtherHouse = (board.board[0:3, 0:3] == 1).sum()
+        BlackInOtherHouse = (board.board[5:8, 5:8] == -1).sum()
+        WhiteInHouse = (board.board[5:8, 5:8] == 1).sum()
+        
         board.WhiteInOtherHouse = WhiteInOtherHouse
         board.BlackInOtherHouse = BlackInOtherHouse
         board.WhiteInHouse = WhiteInHouse

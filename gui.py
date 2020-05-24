@@ -7,7 +7,7 @@ from src.ai import AI, PositionEvaluation
 from src.boardstate import BoardState
 from src.DefaultBoards import StartBoard1
 from src.DefaultBoards import StartBoard2
-from tests import tests
+from tests import Tests
 
 class cons:
     def __init__(self):
@@ -130,7 +130,7 @@ print("Do you want to enter change mode?\nWrite 1 or 0")
 game_mod = int(input())
 pers = cons()
 if game_mod == 1:
-    tests = tests()
+    tests = Tests()
 ai = AI(PositionEvaluation(), search_depth=4)
 help_ = PositionEvaluation()
 StartBoard = StartBoard1() if game_mod == 0 else StartBoard2()

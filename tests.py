@@ -3,7 +3,7 @@ import os
 from src.boardstate import BoardState
 
 
-class tests:
+class Tests:
     def __init__(self):
         self.tests = []
         ind = 1
